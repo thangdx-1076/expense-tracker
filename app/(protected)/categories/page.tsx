@@ -1,9 +1,25 @@
+import { createClient } from '@/lib/supabase/server'
+import { CategoryList } from '@/components/categories/CategoryList'
+
 export const metadata = {
   title: 'Categories | Expense Tracker',
   description: 'Manage your transaction categories',
 }
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const supabase = createClient()
+  const { data: userData } = await supabase.auth.getUser()
+  const userId = userData?.user?.id
+
+  if (!userId) return <div>Not authenticated</div>
+
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('user_id', userId)
+    .order('name')
+  const categories = categoriesData ?? []
+
   return (
     <div className="space-y-8">
       <div>
@@ -13,15 +29,8 @@ export default function CategoriesPage() {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <p className="text-gray-600">
-          Category management features coming in Phase 4. For now, head to{' '}
-          <a href="/transactions" className="text-blue-600 hover:text-blue-700">
-            Transactions
-          </a>
-          {' '}to get started.
-        </p>
-      </div>
+      <CategoryList categories={categories} />
     </div>
   )
 }
+
