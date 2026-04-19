@@ -1,0 +1,115 @@
+'use client'
+
+import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import Link from 'next/link'
+import { signIn } from '@/lib/actions/auth'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
+import { FormError } from '@/components/ui/FormError'
+
+const SignInSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+})
+
+type SignInInput = z.infer<typeof SignInSchema>
+
+export function SignInForm() {
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm<SignInInput>({
+    resolver: zodResolver(SignInSchema),
+  })
+
+  const onSubmit = (data: SignInInput) => {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.append('email', data.email)
+      formData.append('password', data.password)
+
+      const result = await signIn(formData)
+
+      if (!result.success) {
+        if (result.error.fieldErrors) {
+          Object.entries(result.error.fieldErrors).forEach(([field, msgs]) => {
+            setError(field as keyof SignInInput, {
+              type: 'server',
+              message: msgs[0],
+            })
+          })
+        } else {
+          setError('email', {
+            type: 'server',
+            message: result.error.message,
+          })
+        }
+      }
+    })
+  }
+
+  return (
+    <div className="w-full max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">Sign In</h1>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <Label htmlFor="email" required>
+            Email
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            error={errors.email?.message}
+            {...register('email')}
+          />
+          {errors.email && (
+            <FormError errors={[errors.email.message || '']} />
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="password" required>
+            Password
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            error={errors.password?.message}
+            {...register('password')}
+          />
+          {errors.password && (
+            <FormError errors={[errors.password.message || '']} />
+          )}
+        </div>
+
+        <Button
+          type="submit"
+          size="md"
+          isLoading={isPending}
+          className="w-full"
+        >
+          Sign In
+        </Button>
+      </form>
+
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Don&apos;t have an account?{' '}
+        <Link href="/sign-up" className="text-blue-600 hover:text-blue-700">
+          Sign up
+        </Link>
+      </p>
+    </div>
+  )
+}
