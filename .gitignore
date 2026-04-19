@@ -1,0 +1,62 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+.next/
+
+# build artifacts
+tsconfig.tsbuildinfo
+dist/
+build/
+
+# local env files
+.env.local
+.env*.local
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# os files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# coverage
+coverage/
+
+# playwright
+playwright-report/
+test-results/
+
+# ide
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# speckit & automation
+.specify/
+.speckit/
+.github/agents/
+.github/prompts/
+
+# misc
+*.pem
+.cache/
