@@ -7,6 +7,12 @@ VALUES
   ('11111111-1111-1111-1111-111111111111'::uuid, 'authenticated', 'authenticated', 'user1@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb),
   ('22222222-2222-2222-2222-222222222222'::uuid, 'authenticated', 'authenticated', 'user2@example.com', crypt('password456', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb);
 
+-- Create identities for email/password auth (required by Supabase Auth v2+)
+INSERT INTO auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+VALUES
+  ('11111111-1111-1111-1111-111111111111', '11111111-1111-1111-1111-111111111111'::uuid, 'user1@example.com', 'email', '{"sub":"11111111-1111-1111-1111-111111111111","email":"user1@example.com"}'::jsonb, now(), now(), now()),
+  ('22222222-2222-2222-2222-222222222222', '22222222-2222-2222-2222-222222222222'::uuid, 'user2@example.com', 'email', '{"sub":"22222222-2222-2222-2222-222222222222","email":"user2@example.com"}'::jsonb, now(), now(), now());
+
 -- Create categories for user 1
 INSERT INTO public.categories (id, user_id, name, created_at, updated_at) VALUES
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, '11111111-1111-1111-1111-111111111111'::uuid, 'Food & Dining', now(), now()),
