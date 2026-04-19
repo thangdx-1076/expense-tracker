@@ -8,6 +8,7 @@ import { updateCategory, deleteCategory } from '@/lib/actions/categories'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { FormError } from '@/components/ui/FormError'
+import { useToast } from '@/components/ui/Toast'
 import type { Database } from '@/lib/types/database'
 
 type Category = Database['public']['Tables']['categories']['Row']
@@ -27,6 +28,7 @@ export function CategoryRow({ category, onMutate }: CategoryRowProps) {
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeleting, startDeleteTransition] = useTransition()
   const [isUpdating, startUpdateTransition] = useTransition()
+  const { showToast } = useToast()
 
   const {
     register,
@@ -46,6 +48,7 @@ export function CategoryRow({ category, onMutate }: CategoryRowProps) {
       const result = await updateCategory(category.id, formData)
       if (result.success) {
         setIsRenaming(false)
+        showToast('Category renamed')
         onMutate()
       } else {
         if (result.error.fieldErrors) {
@@ -62,6 +65,7 @@ export function CategoryRow({ category, onMutate }: CategoryRowProps) {
     startDeleteTransition(async () => {
       const result = await deleteCategory(category.id)
       if (result.success) {
+        showToast('Category deleted')
         onMutate()
       } else {
         setDeleteError(result.error.message)

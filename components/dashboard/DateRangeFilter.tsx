@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Label } from '@/components/ui/Label'
 import { Input } from '@/components/ui/Input'
 
@@ -12,6 +12,7 @@ interface DateRangeFilterProps {
 export function DateRangeFilter({ from, to }: DateRangeFilterProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
 
   const handleChange = (field: 'from' | 'to', value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -27,7 +28,7 @@ export function DateRangeFilter({ from, to }: DateRangeFilterProps) {
     // Validate from <= to before navigating
     if (newFrom && newTo && newFrom > newTo) return
 
-    router.replace(`/dashboard?${params.toString()}`)
+    router.replace(`${pathname}?${params.toString()}`)
   }
 
   return (

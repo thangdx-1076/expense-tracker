@@ -4,6 +4,7 @@ import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { CategoryRow } from './CategoryRow'
 import { CategoryForm } from './CategoryForm'
+import { useToast } from '@/components/ui/Toast'
 import type { Database } from '@/lib/types/database'
 
 type Category = Database['public']['Tables']['categories']['Row']
@@ -14,15 +15,21 @@ interface CategoryListProps {
 
 export function CategoryList({ categories }: CategoryListProps) {
   const router = useRouter()
+  const { showToast } = useToast()
 
   const handleMutate = useCallback(() => {
     router.refresh()
   }, [router])
 
+  const handleCreateSuccess = useCallback(() => {
+    showToast('Category created')
+    router.refresh()
+  }, [router, showToast])
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        <CategoryForm onSuccess={handleMutate} />
+        <CategoryForm onSuccess={handleCreateSuccess} />
       </div>
 
       {categories.length === 0 ? (
