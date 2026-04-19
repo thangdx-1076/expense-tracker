@@ -2,10 +2,10 @@
 
 -- Create test users (UUIDs are deterministic for reproducibility)
 -- Using the minimal approach that respects Supabase auth.users constraints
-INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
 VALUES 
-  ('11111111-1111-1111-1111-111111111111'::uuid, 'user1@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb),
-  ('22222222-2222-2222-2222-222222222222'::uuid, 'user2@example.com', crypt('password456', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb);
+  ('11111111-1111-1111-1111-111111111111'::uuid, 'authenticated', 'authenticated', 'user1@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb),
+  ('22222222-2222-2222-2222-222222222222'::uuid, 'authenticated', 'authenticated', 'user2@example.com', crypt('password456', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb);
 
 -- Create categories for user 1
 INSERT INTO public.categories (id, user_id, name, created_at, updated_at) VALUES
