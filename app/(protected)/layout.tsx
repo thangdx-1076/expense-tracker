@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/Button'
 
@@ -9,7 +9,7 @@ async function ProtectedLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createServerClient()
+  const supabase = createClient()
   const { data, error } = await supabase.auth.getUser()
 
   if (error || !data?.user) {

@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { TransactionsPageContent } from '@/components/transactions/TransactionsPageContent'
 
 export const metadata = {
@@ -7,7 +7,7 @@ export const metadata = {
 }
 
 export default async function TransactionsPage() {
-  const supabase = await createServerClient()
+  const supabase = createClient()
 
   // Get current user
   const { data: userData } = await supabase.auth.getUser()
@@ -18,14 +18,15 @@ export default async function TransactionsPage() {
   }
 
   // Fetch categories
-  const { data: categories = [] } = await supabase
+  const { data: categoriesData } = await supabase
     .from('categories')
     .select('*')
     .eq('user_id', userId)
     .order('name')
+  const categories = categoriesData ?? []
 
   // Fetch transactions with category info
-  const { data: transactions = [] } = await supabase
+  const { data: transactionsData } = await supabase
     .from('transactions')
     .select(
       `
@@ -38,6 +39,7 @@ export default async function TransactionsPage() {
     )
     .eq('user_id', userId)
     .order('date', { ascending: false })
+  const transactions = transactionsData ?? []
 
   return (
     <TransactionsPageContent
