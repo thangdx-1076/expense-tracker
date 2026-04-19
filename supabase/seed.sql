@@ -2,10 +2,10 @@
 
 -- Create test users (UUIDs are deterministic for reproducibility)
 -- Using the minimal approach that respects Supabase auth.users constraints
-INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
+INSERT INTO auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, confirmation_token, recovery_token, email_change_token_new, email_change, email_change_token_current, created_at, updated_at, raw_app_meta_data, raw_user_meta_data)
 VALUES 
-  ('11111111-1111-1111-1111-111111111111'::uuid, 'authenticated', 'authenticated', 'user1@example.com', crypt('password123', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb),
-  ('22222222-2222-2222-2222-222222222222'::uuid, 'authenticated', 'authenticated', 'user2@example.com', crypt('password456', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb);
+  ('11111111-1111-1111-1111-111111111111'::uuid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'user1@example.com', crypt('password123', gen_salt('bf')), now(), '', '', '', '', '', now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb),
+  ('22222222-2222-2222-2222-222222222222'::uuid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', 'user2@example.com', crypt('password456', gen_salt('bf')), now(), '', '', '', '', '', now(), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb);
 
 -- Create identities for email/password auth (required by Supabase Auth v2+)
 INSERT INTO auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
