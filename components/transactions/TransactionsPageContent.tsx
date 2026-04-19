@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { TransactionList } from '@/components/transactions/TransactionList'
+import { ExportCsvButton } from '@/components/transactions/ExportCsvButton'
 import { Modal } from '@/components/ui/Modal'
 import type { Database } from '@/lib/types/database'
 
@@ -62,9 +63,14 @@ export function TransactionsPageContent({
       />
 
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          Transaction History
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Transaction History
+          </h2>
+          <Suspense>
+            <ExportCsvButton />
+          </Suspense>
+        </div>
         <TransactionList
           transactions={transactions}
           onEdit={handleEdit}

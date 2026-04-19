@@ -338,3 +338,104 @@ export async function deleteTransaction(
     }
   }
 }
+
+const ExportFilterSchema = z
+  .object({
+    from: z.string().date().optional(),
+    to: z.string().date().optional(),
+    category_id: z.string().uuid().optional(),
+  })
+  .refine(
+    (data) => !data.from || !data.to || data.from <= data.to,
+    { message: 'Start date must not be after end date' }
+  )
+
+export type ExportFilters = z.infer<typeof ExportFilterSchema>
+
+function escapeCsvField(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    return `"${value.replace(/"/g, '""')}"`
+  }
+  return value
+}
+
+export async function exportTransactionsCsv(
+  filters: ExportFilters
+): Promise<ActionResult<string>> {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return {
+        success: false,
+        error: {
+          code: 'UNAUTHENTICATED',
+          message: 'You must be signed in to export transactions',
+        },
+      }
+    }
+
+    const parsed = ExportFilterSchema.safeParse(filters)
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: parsed.error.issues[0]?.message ?? 'Invalid filters',
+        },
+      }
+    }
+
+    const { from, to, category_id } = parsed.data
+    const supabase = await createClient()
+
+    let query = supabase
+      .from('transactions')
+      .select(`
+        date,
+        description,
+        type,
+        amount,
+        categories:category_id (
+          name
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+
+    if (from) query = query.gte('date', from)
+    if (to) query = query.lte('date', to)
+    if (category_id) query = query.eq('category_id', category_id)
+
+    const { data: rows, error } = await query
+
+    if (error) {
+      return {
+        success: false,
+        error: { code: 'DB_ERROR', message: 'Failed to fetch transactions.' },
+      }
+    }
+
+    const lines: string[] = ['Date,Description,Type,Category,Amount']
+
+    for (const row of rows ?? []) {
+      const categoryName = (row.categories as unknown as { name: string } | null)?.name ?? 'Uncategorized'
+      lines.push(
+        [
+          escapeCsvField(row.date),
+          escapeCsvField(row.description),
+          escapeCsvField(row.type),
+          escapeCsvField(categoryName),
+          String(row.amount),
+        ].join(',')
+      )
+    }
+
+    return { success: true, data: lines.join('\n') }
+  } catch (err) {
+    console.error('exportTransactionsCsv error:', err)
+    return {
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' },
+    }
+  }
+}
